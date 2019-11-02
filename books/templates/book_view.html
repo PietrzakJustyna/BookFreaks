@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1 id="title">{{book.title}}</h1>
+    <h2 id="author">{% for auth in author %}
+        {{ auth.name}} {{auth.surname}}
+    {% endfor %}
+        </h2>
+    <div id="category"><b>Categories:</b>
+        <br>
+        {% for cat in category %}
+        {{cat.category_name}}<br>
+        {% endfor %}
+    </div>
+
+
+{% endblock %}

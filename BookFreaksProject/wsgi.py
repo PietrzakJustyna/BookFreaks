@@ -1,5 +1,5 @@
 """
-WSGI config for BookFreeks project.
+WSGI config for BookFreaksProject project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'BookFreeks.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'BookFreaksProject.settings')
 
 application = get_wsgi_application()

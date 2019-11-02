@@ -12,7 +12,7 @@ class Book(models.Model):
 class Author(models.Model):
     name = models.CharField(max_length=124)
     surname = models.CharField(max_length=124)
-    books = models.ManyToManyField(Book)
+    books = models.ManyToManyField(Book, related_name="book_author")
 
 
 class Category(models.Model):
@@ -22,7 +22,8 @@ class Category(models.Model):
 
 class Rating(models.Model):
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    book = models.ManyToManyField(Book)
+    book = models.ManyToManyField(Book, related_name="book_rating")
     when_rated = models.DateTimeField(auto_now=True)
-    user = models.ManyToManyField(User)
+    user = models.ManyToManyField(User, related_name="reader")
+
 
