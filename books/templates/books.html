@@ -3,11 +3,16 @@
 {% block content %}
 
     <h1>BOOKS</h1>
-
         {% for book in books %}
-        {{book.title}}<br>
-        {% endfor %}
+
+
+<div class="list-group">
+  <a href="{% url 'book' book.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{{book.title}}</h5>
     </div>
+  </a>
+    <div class="d-flex w-100 justify-content-between"></div>
 
-
+        {% endfor %}
 {% endblock %}
