@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from books.views import BookView, LoginView, CreateUserView, BookListView, AuthorListView, AuthorView
+from books.views import BookView, LoginView, CreateUserView, BookListView, AuthorListView, AuthorView, \
+    LandingPageView, SearchResultsView
 
 urlpatterns = [
+    path('', LandingPageView.as_view(), name='landing_page'),
     path('admin/', admin.site.urls),
     path('books/<int:book_id>', BookView.as_view(), name='book'),
     path('login', LoginView.as_view(), name='login'),
@@ -25,4 +27,5 @@ urlpatterns = [
     path('books', BookListView.as_view(), name='books'),
     path('authors', AuthorListView.as_view(), name='authors'),
     path('authors/<int:author_id>', AuthorView.as_view(), name='author'),
+    path('search_result', SearchResultsView.as_view(), name='search_result')
 ]

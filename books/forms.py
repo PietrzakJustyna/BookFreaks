@@ -14,3 +14,7 @@ class CreateUserForm(forms.Form):
     last_name = forms.CharField()
     email = forms.EmailField()
 
+
+class SearchForm(forms.Form):
+    search_input = forms.CharField(required=False)
+

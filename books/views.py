@@ -1,10 +1,19 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
-from books.forms import LoginForm, CreateUserForm
-from books.models import Book, Author
+from django.views.generic import TemplateView, ListView
+
+from books.forms import LoginForm, CreateUserForm, SearchForm
+from books.models import Book, Author, Category
+
+
+class LandingPageView(View):
+    def get(self, request):
+        ctx = None
+        return render(request, "landing_page.html", {"ctx": ctx})
 
 
 class CreateUserView(View):
@@ -75,4 +84,21 @@ class AuthorListView(View):
     def get(self, request):
         authors = Author.objects.all().order_by("surname")
         return render(request, "authors.html", {"authors": authors})
+
+
+class SearchView(TemplateView):
+    template_name = "base.html"
+
+
+class SearchResultsView(ListView):
+    model = Book
+    template_name = 'search_result.html'
+
+    def get_queryset(self):
+        query = self.request.GET.get('search_input')
+        object_list = Book.objects.filter(Q(title__icontains=query) |
+                                          Q(book_author__name__icontains=query) |
+                                          Q(book_author__surname__icontains=query) |
+                                          Q(category__category_name__icontains=query))
+        return object_list
 
