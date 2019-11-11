@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect
@@ -59,6 +59,12 @@ class LoginView(View):
         return render(request, "login.html", {'form': form})
 
 
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect("login")
+
+
 class BookView(View):
     def get(self, request, book_id):
         book = Book.objects.get(id=book_id)
@@ -99,6 +105,7 @@ class SearchResultsView(ListView):
         object_list = Book.objects.filter(Q(title__icontains=query) |
                                           Q(book_author__name__icontains=query) |
                                           Q(book_author__surname__icontains=query) |
-                                          Q(category__category_name__icontains=query))
+                                          Q(category__category_name__icontains=query) |
+                                          Q(isbn__icontains=query))
         return object_list
 

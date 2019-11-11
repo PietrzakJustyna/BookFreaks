@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from books.views import BookView, LoginView, CreateUserView, BookListView, AuthorListView, AuthorView, \
-    LandingPageView, SearchResultsView
+    LandingPageView, SearchResultsView, LogoutView
 
 urlpatterns = [
     path('', LandingPageView.as_view(), name='landing_page'),
@@ -27,5 +27,6 @@ urlpatterns = [
     path('books', BookListView.as_view(), name='books'),
     path('authors', AuthorListView.as_view(), name='authors'),
     path('authors/<int:author_id>', AuthorView.as_view(), name='author'),
-    path('search_result', SearchResultsView.as_view(), name='search_result')
+    path('search_result', SearchResultsView.as_view(), name='search_result'),
+    path('logout', LogoutView.as_view(), name='logout'),
 ]
