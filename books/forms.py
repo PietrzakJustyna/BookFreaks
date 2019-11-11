@@ -1,4 +1,5 @@
 from django import forms
+from books.models import Author, Category
 
 
 class LoginForm(forms.Form):
@@ -18,3 +19,9 @@ class CreateUserForm(forms.Form):
 class SearchForm(forms.Form):
     search_input = forms.CharField(required=False)
 
+
+class CreateBookForm(forms.Form):
+    title = forms.CharField(max_length=124)
+    isbn = forms.CharField(max_length=13)
+    authors = forms.ModelMultipleChoiceField(Author.objects.all())
+    categories = forms.ModelMultipleChoiceField(Category.objects.all())

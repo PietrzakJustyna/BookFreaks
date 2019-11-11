@@ -15,10 +15,16 @@ class Author(models.Model):
     surname = models.CharField(max_length=124)
     books = models.ManyToManyField(Book, related_name="book_author")
 
+    def __str__(self):
+        return "{} {}".format(self.name, self.surname)
+
 
 class Category(models.Model):
     category_name = models.CharField(max_length=124)
-    books = models.ManyToManyField(Book)
+    books = models.ManyToManyField(Book, related_name="book_category")
+
+    def __str__(self):
+        return self.category_name
 
 
 class Rating(models.Model):

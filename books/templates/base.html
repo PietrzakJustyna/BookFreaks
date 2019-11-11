@@ -36,7 +36,11 @@
                         Book categories
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">{for category in catgories}</a>
+                        {% for category in categories %}
+                        <a class="dropdown-item" href="{% url 'books_in_category' category_id=category.id %}">
+                            {{ category }}
+                        </a>
+                        {% endfor %}
                     </div>
                 </li>
             </ul>

@@ -4,9 +4,9 @@ from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, CreateView, FormView
 
-from books.forms import LoginForm, CreateUserForm, SearchForm
+from books.forms import LoginForm, CreateUserForm, SearchForm, CreateBookForm
 from books.models import Book, Author, Category
 
 
@@ -68,7 +68,7 @@ class LogoutView(View):
 class BookView(View):
     def get(self, request, book_id):
         book = Book.objects.get(id=book_id)
-        category = book.category_set.all()
+        category = book.book_category.all()
         author = book.book_author.all()
         return render(request, "book_view.html", {"book": book, "category": category, "author": author})
 
@@ -92,6 +92,13 @@ class AuthorListView(View):
         return render(request, "authors.html", {"authors": authors})
 
 
+class BooksInCategoryView(View):
+    def get(self, request, category_id):
+        category = Category.objects.get(id=category_id)
+        books = Book.objects.filter(book_category=category)
+        return render(request, "books.html", {"books": books})
+
+
 class SearchView(TemplateView):
     template_name = "base.html"
 
@@ -108,4 +115,27 @@ class SearchResultsView(ListView):
                                           Q(category__category_name__icontains=query) |
                                           Q(isbn__icontains=query))
         return object_list
+
+
+class CreateBookView(FormView):
+    template_name = 'create_book.html'
+    success_url = '/books'
+    form_class = CreateBookForm
+
+    def form_valid(self, form):
+        title = form.cleaned_data['title']
+        isbn = form.cleaned_data['isbn']
+        authors = form.cleaned_data['authors']
+        categories = form.cleaned_data['categories']
+        book = Book(title=title, isbn=isbn)
+        book.save()
+        author_list = Author.objects.filter(pk__in=authors)
+        for author in author_list:
+            book.book_author.add(author)
+
+        category_list = Category.objects.filter(pk__in=categories)
+        for category in category_list:
+            book.book_category.add(category)
+
+        return redirect('books/{}'.format(book.id))
 
