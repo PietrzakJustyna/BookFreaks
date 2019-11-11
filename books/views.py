@@ -112,7 +112,7 @@ class SearchResultsView(ListView):
         object_list = Book.objects.filter(Q(title__icontains=query) |
                                           Q(book_author__name__icontains=query) |
                                           Q(book_author__surname__icontains=query) |
-                                          Q(category__category_name__icontains=query) |
+                                          Q(book_category__category_name__icontains=query) |
                                           Q(isbn__icontains=query))
         return object_list
 
@@ -127,12 +127,20 @@ class CreateBookView(FormView):
         isbn = form.cleaned_data['isbn']
         authors = form.cleaned_data['authors']
         categories = form.cleaned_data['categories']
+        author_name = form.cleaned_data['author_name']
+        author_surname = form.cleaned_data['author_surname']
+        print(authors)
         book = Book(title=title, isbn=isbn)
         book.save()
-        author_list = Author.objects.filter(pk__in=authors)
-        for author in author_list:
-            book.book_author.add(author)
-
+        if authors[0] == 'None':
+            new_author = Author(name=author_name, surname=author_surname)
+            new_author.save()
+            print(new_author)
+            book.book_author.add(new_author)
+        else:
+            author_list = Author.objects.filter(pk__in=authors)
+            for author in author_list:
+                book.book_author.add(author)
         category_list = Category.objects.filter(pk__in=categories)
         for category in category_list:
             book.book_category.add(category)
