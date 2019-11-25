@@ -1,24 +1,29 @@
+$(document).ready(function() {
+    var id_authors = $('#id_authors');
+    var id_categories = $('#id_categories');
+    var create_new_author_checkbox = $('#id_create_new_author');
+    var add_author_name = $('#div_id_author_name');
+    var add_author_surname = $('#div_id_author_surname');
 
-document.addEventListener('DOMContentLoaded', function () {
-    var add_author_checkbox = document.querySelector("[name = 'authors'][value = 'None']");
-    var add_author_name_form = document.querySelector("#div_id_author_name");
-    var add_author_surname_form = document.querySelector("#div_id_author_surname");
-    add_author_name_form.style.display = "none";
-    add_author_surname_form.style.display = "none";
 
-    function newAuthorNeeded(add_author_checkbox, add_author_name_form, add_author_surname_form){
-        if (add_author_checkbox.checked == true){
-            add_author_name_form.style.display = "block";
-            add_author_surname_form.style.display = "block";
-        }
-        else {
-            add_author_name_form.style.display = "none";
-            add_author_surname_form.style.display = "none";
-        }
-    }
+    $(id_authors).select2();
+    $(id_categories).select2();
 
-    add_author_checkbox.addEventListener('click', function () {
-        newAuthorNeeded(this, add_author_name_form, add_author_surname_form)
-    })
+    add_author_name.css("display","none");
+    add_author_surname.css("display","none");
 
+    create_new_author_checkbox.on('click', function () {
+        hide_element(create_new_author_checkbox, add_author_name, add_author_surname)
+    });
+
+    function hide_element(checkbox, name, surname) {
+         if (checkbox.is(":checked")){
+           name.show();
+           surname.show();
+       }
+       else {
+           name.hide();
+           surname.hide();
+       }
+   }
 });

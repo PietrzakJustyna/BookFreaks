@@ -8,5 +8,8 @@
 
     {% csrf_token %}
 </form>
+<hr>
+
+<p>You do not have an account yet? <a href="{% url 'register' %}" > Register!</a> </p>
 
 {% endblock %}

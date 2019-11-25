@@ -22,14 +22,10 @@ class SearchForm(forms.Form):
 
 class CreateBookForm(forms.Form):
     authors = Author.objects.all()
-    authors_options = []
-    for author in authors:
-        authors_options.append([author.pk, author.name + " " + author.surname])
-    authors_options.append([None, "Add new author"])
-    title = forms.CharField(max_length=124)
-    isbn = forms.CharField(max_length=13)
-    authors = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=tuple(authors_options))
-    categories = forms.ModelMultipleChoiceField(Category.objects.all())
+    create_new_author = forms.BooleanField(required=False)
     author_name = forms.CharField(max_length=124, required=False)
     author_surname = forms.CharField(max_length=124, required=False)
-
+    title = forms.CharField(max_length=124)
+    isbn = forms.CharField(max_length=13)
+    authors = forms.ModelMultipleChoiceField(authors, required=False)
+    categories = forms.ModelMultipleChoiceField(Category.objects.all())
