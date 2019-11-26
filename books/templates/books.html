@@ -22,7 +22,7 @@
 {% endif %}
 
 <form id="sort_form" method="get" action="">
-    <select name="how" onblur="this.form.submit()">
+    <select class="sortform" name="how" onchange="this.form.submit()">
         <option value="alpha-asc">Alphabetically ascending</option>
         <option value="alpha-desc">Alphabetically descending</option>
         <option value="rating-asc">By rating ascending</option>

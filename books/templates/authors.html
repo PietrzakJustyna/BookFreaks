@@ -5,18 +5,6 @@
 <h1>Authors</h1>
 <hr>
 
-<form id="sort_form" method="get" action="{% url 'authors' %}">
-    <select name="how" onblur="this.form.submit()">
-        <option value="alpha-asc">Alphabetically ascending</option>
-        <option value="alpha-desc">Alphabetically descending</option>
-        <option value="rating-asc">By rating ascending</option>
-        <option value="rating-desc">By rating descending</option>
-    </select>
-    <noscript><input type="submit" value="Sort"></noscript>
-    {% csrf_token %}
-</form>
-<br>
-
 
 {% for author in authors %}
 <div class="list-group">

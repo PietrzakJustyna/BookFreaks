@@ -17,14 +17,28 @@
 
 <h1 id="title">{{book.title}}</h1>
 
-<div id="heart">
+{% if user.is_authenticated %}
+
+<p id="current_fav_state" hidden data-fav="{{current_fav_state.favourite}}"></p>
+
+{% if current_fav_state.favourite == True %}
+
+<div class="heart">
+    <i class="heart fa fa-heart" data-id="{{ book.id }}" value="0"></i>
+</div>
+
+{% else %}
+
+<div class="heart">
     <i class="heart fa fa-heart-o" data-id="{{ book.id }}" value="0"></i>
 </div>
+
+{% endif %}
+
 
 <hr>
 <h3>Average rating:</h3> <h3 id="avg_rating" data-id="{{ book.id }}">{{ book.average_rating }} </h3>
 
-{% if user.is_authenticated %}
 
 <p id="current_rating" hidden data-rating="{{current_rating.rating}}"></p>
 

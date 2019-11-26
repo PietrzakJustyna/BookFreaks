@@ -15,6 +15,19 @@ from books.forms import LoginForm, CreateUserForm, CreateBookForm
 from books.models import Book, Author, Category, Rating, FavouriteBook
 
 
+def sort(how, what):
+
+    if how == "rating-asc":
+        what = what.order_by("average_rating")
+    elif how == "alpha-asc":
+        what = what.all().order_by("title")
+    elif how == "rating-desc":
+        what = what.order_by("average_rating").reverse()
+    else:
+        what = what.order_by("title").reverse()
+    return what
+
+
 class LandingPageView(View):
     def get(self, request):
         ten_best_rated_books = Book.objects.all().order_by("average_rating").reverse()[:10]
@@ -84,26 +97,32 @@ class BookView(View):
     def get(self, request, book_id):
         try:
             current_rating = Rating.objects.get(book_id=book_id, user_id=request.user.id)
+            current_fav_state = FavouriteBook.objects.get(book_id=book_id, user_id=request.user.id)
             book = get_object_or_404(Book, pk=book_id)
-            return render(request, "book_view.html", {"book": book, "current_rating": current_rating})
+            return render(request, "book_view.html", {"book": book, "current_rating": current_rating,
+                                                      "current_fav_state": current_fav_state})
         except ObjectDoesNotExist:
-            book = get_object_or_404(Book, pk=book_id)
-            return render(request, "book_view.html", {"book": book})
+            try:
+                current_rating = Rating.objects.get(book_id=book_id, user_id=request.user.id)
+                book = get_object_or_404(Book, pk=book_id)
+                return render(request, "book_view.html", {"book": book, "current_rating": current_rating})
+            except ObjectDoesNotExist:
+                try:
+                    current_fav_state = FavouriteBook.objects.get(book_id=book_id, user_id=request.user.id)
+                    book = get_object_or_404(Book, pk=book_id)
+                    return render(request, "book_view.html", {"book": book, "current_fav_state": current_fav_state})
+                except ObjectDoesNotExist:
+                    book = get_object_or_404(Book, pk=book_id)
+                    return render(request, "book_view.html", {"book": book})
 
 
 class BookListView(View):
     def get(self, request):
 
         how = self.request.GET.get("how")
+        books = Book.objects.all()
 
-        if how == "rating-asc":
-            books = Book.objects.all().order_by("average_rating")
-        elif how == "alpha-asc":
-            books = Book.objects.all().order_by("title")
-        elif how == "rating-desc":
-            books = Book.objects.all().order_by("average_rating").reverse()
-        else:
-            books = Book.objects.all().order_by("title").reverse()
+        books = sort(how, books)
 
         paginator = Paginator(books, 10)
         page = request.GET.get('page')
@@ -131,17 +150,9 @@ class BooksInCategoryView(View):
     def get(self, request, category_id):
 
         category = Category.objects.get(id=category_id)
+        books = Book.objects.filter(book_category=category)
         how = self.request.GET.get("how")
-
-        if how == "rating-asc":
-            books = Book.objects.filter(book_category=category).order_by("average_rating")
-        elif how == "alpha-asc":
-            books = Book.objects.filter(book_category=category).order_by("title")
-        elif how == "rating-desc":
-            books = Book.objects.filter(book_category=category).order_by("average_rating").reverse()
-        else:
-            books = Book.objects.filter(book_category=category).order_by("title").reverse()
-
+        books = sort(how, books)
         return render(request, "books.html", {"books": books, "category": category})
 
 
@@ -294,16 +305,8 @@ class RatedByUserView(LoginRequiredMixin, View):
 
         user = request.user
         how = self.request.GET.get("how")
-
-        if how == "rating-asc":
-            books = Book.objects.filter(book_rating__user=user).order_by("average_rating")
-        elif how == "alpha-asc":
-            books = Book.objects.filter(book_rating__user=user).order_by("title")
-        elif how == "rating-desc":
-            books = Book.objects.filter(book_rating__user=user).order_by("average_rating").reverse()
-        else:
-            books = Book.objects.filter(book_rating__user=user).order_by("title").reverse()
-
+        books = Book.objects.filter(book_rating__user=user)
+        books = sort(how, books)
         return render(request, "books.html", {"books": books})
 
 
@@ -312,18 +315,9 @@ class LikedByUserView(LoginRequiredMixin, View):
 
     def get(self, request):
         user = request.user
-
+        books = Book.objects.filter(fav_book__user=user)
         how = self.request.GET.get("how")
-
-        if how == "rating-asc":
-            books = Book.objects.filter(fav_book__user=user).order_by("average_rating")
-        elif how == "alpha-asc":
-            books = Book.objects.filter(fav_book__user=user).order_by("title")
-        elif how == "rating-desc":
-            books = Book.objects.filter(fav_book__user=user).order_by("average_rating").reverse()
-        else:
-            books = Book.objects.filter(fav_book__user=user).order_by("title").reverse()
-
+        books = sort(how, books)
         return render(request, "books.html", {"books": books})
 
 
