@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
@@ -10,10 +11,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, ListView, CreateView, FormView, UpdateView, DeleteView
-from django.core.paginator import Paginator
 from books.forms import LoginForm, CreateUserForm, CreateBookForm
 from books.models import Book, Author, Category, Rating, FavouriteBook
-from django.contrib.auth.models import Group
 
 
 class LandingPageView(View):
@@ -95,16 +94,13 @@ class BookView(View):
 class BookListView(View):
     def get(self, request):
 
-        by_what = self.request.GET.get("by_what")
-        how = self.request.GET.get("by_what")
+        how = self.request.GET.get("how")
 
-        print(by_what)
-
-        if by_what == "rating" and how == "asc":
+        if how == "rating-asc":
             books = Book.objects.all().order_by("average_rating")
-        elif by_what == "alpha" and how == "asc":
+        elif how == "alpha-asc":
             books = Book.objects.all().order_by("title")
-        elif by_what == "rating" and how == "desc":
+        elif how == "rating-desc":
             books = Book.objects.all().order_by("average_rating").reverse()
         else:
             books = Book.objects.all().order_by("title").reverse()
@@ -133,8 +129,19 @@ class AuthorListView(View):
 
 class BooksInCategoryView(View):
     def get(self, request, category_id):
+
         category = Category.objects.get(id=category_id)
-        books = Book.objects.filter(book_category=category)
+        how = self.request.GET.get("how")
+
+        if how == "rating-asc":
+            books = Book.objects.filter(book_category=category).order_by("average_rating")
+        elif how == "alpha-asc":
+            books = Book.objects.filter(book_category=category).order_by("title")
+        elif how == "rating-desc":
+            books = Book.objects.filter(book_category=category).order_by("average_rating").reverse()
+        else:
+            books = Book.objects.filter(book_category=category).order_by("title").reverse()
+
         return render(request, "books.html", {"books": books, "category": category})
 
 
@@ -156,8 +163,6 @@ class SearchResultsView(ListView):
 
 class CreateBookView(PermissionRequiredMixin, FormView):
     permission_required = 'add_book'
-    raise_exception = True
-    permission_denied_message = 'You have to be an administrator to add new books'
     template_name = 'create_book.html'
     success_url = '/books'
     form_class = CreateBookForm
@@ -286,8 +291,19 @@ class RatedByUserView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
 
     def get(self, request):
+
         user = request.user
-        books = Book.objects.filter(book_rating__user=user)
+        how = self.request.GET.get("how")
+
+        if how == "rating-asc":
+            books = Book.objects.filter(book_rating__user=user).order_by("average_rating")
+        elif how == "alpha-asc":
+            books = Book.objects.filter(book_rating__user=user).order_by("title")
+        elif how == "rating-desc":
+            books = Book.objects.filter(book_rating__user=user).order_by("average_rating").reverse()
+        else:
+            books = Book.objects.filter(book_rating__user=user).order_by("title").reverse()
+
         return render(request, "books.html", {"books": books})
 
 
@@ -296,5 +312,18 @@ class LikedByUserView(LoginRequiredMixin, View):
 
     def get(self, request):
         user = request.user
-        books = Book.objects.filter(fav_book__user=user)
+
+        how = self.request.GET.get("how")
+
+        if how == "rating-asc":
+            books = Book.objects.filter(fav_book__user=user).order_by("average_rating")
+        elif how == "alpha-asc":
+            books = Book.objects.filter(fav_book__user=user).order_by("title")
+        elif how == "rating-desc":
+            books = Book.objects.filter(fav_book__user=user).order_by("average_rating").reverse()
+        else:
+            books = Book.objects.filter(fav_book__user=user).order_by("title").reverse()
+
         return render(request, "books.html", {"books": books})
+
+

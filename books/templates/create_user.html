@@ -2,26 +2,26 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <form method="post" action="#">
-   {{ form | crispy}}
+    {{ form | crispy}}
 
-{% if messages %}
-  <ul class="messages">
-     {% for message in messages %}
-  <div class="alert alert-danger {{ message.tags }} alert-dismissible" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-    {{ message }}
-  </div>
-{% endfor %}
-  </ul>
-{% endif %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <div class="alert alert-danger {{ message.tags }} alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </ul>
+    {% endif %}
 
     <input type="submit" value="Register">
 
     {% csrf_token %}
 </form>
 <br>
-<p>You already have an account? <a href="{% url 'login' %}" > Log in!</a> </p>
+<p>You already have an account? <a href="{% url 'login' %}"> Log in!</a></p>
 
 {% endblock %}

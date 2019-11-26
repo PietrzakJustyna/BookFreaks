@@ -5,11 +5,11 @@
 
 
 {% if perms.book.change_book %}
-    <a class="btn btn-primary" href="{% url 'modify_book' pk=book.pk %}" role="button">Modify book</a>
+<a class="btn btn-primary" href="{% url 'modify_book' pk=book.pk %}" role="button">Modify book</a>
 {% endif %}
 
 {% if perms.book.delete_book %}
-    <a class="btn btn-primary" href="{% url 'delete_book' pk=book.pk %}" role="button">Delete book</a>
+<a class="btn btn-primary" href="{% url 'delete_book' pk=book.pk %}" role="button">Delete book</a>
 {% endif %}
 
 <br>
@@ -17,8 +17,8 @@
 
 <h1 id="title">{{book.title}}</h1>
 
-<div id="heart" >
-  <i class="heart fa fa-heart-o" data-id="{{ book.id }}" value="0"></i>
+<div id="heart">
+    <i class="heart fa fa-heart-o" data-id="{{ book.id }}" value="0"></i>
 </div>
 
 <hr>
@@ -30,72 +30,72 @@
 
 {% if current_rating.rating == 1 %}
 <h3> Your rating:
-<form method="post" action="#">
+    <form method="post" action="#">
 <span class="star-rating">
-  <input type="radio" name="rating" value="1" data-id="{{ book.id }}" checked ><i></i>
+  <input type="radio" name="rating" value="1" data-id="{{ book.id }}" checked><i></i>
   <input type="radio" name="rating" value="2" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="3" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="4" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="5" data-id="{{ book.id }}"><i></i>
 </span>
-</form>
+    </form>
 </h3>
 
 {% elif current_rating.rating == 2 %}
 <h3> Your rating:
-<form method="post" action="#">
+    <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
-  <input type="radio" name="rating" value="2" data-id="{{ book.id }}" checked ><i></i>
+  <input type="radio" name="rating" value="2" data-id="{{ book.id }}" checked><i></i>
   <input type="radio" name="rating" value="3" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="4" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="5" data-id="{{ book.id }}"><i></i>
 </span>
-</form>
+    </form>
 </h3>
 
 {% elif current_rating.rating == 3 %}
 <h3> Your rating:
-<form method="post" action="#">
+    <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="2" data-id="{{ book.id }}"><i></i>
-  <input type="radio" name="rating" value="3" data-id="{{ book.id }}" checked ><i></i>
+  <input type="radio" name="rating" value="3" data-id="{{ book.id }}" checked><i></i>
   <input type="radio" name="rating" value="4" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="5" data-id="{{ book.id }}"><i></i>
 </span>
-</form>
+    </form>
 </h3>
 
 {% elif current_rating.rating == 4 %}
 <h3> Your rating:
-<form method="post" action="#">
+    <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="2" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="3" data-id="{{ book.id }}"><i></i>
-  <input type="radio" name="rating" value="4" data-id="{{ book.id }}" checked ><i></i>
+  <input type="radio" name="rating" value="4" data-id="{{ book.id }}" checked><i></i>
   <input type="radio" name="rating" value="5" data-id="{{ book.id }}"><i></i>
 </span>
-</form>
+    </form>
 </h3>
 
 {% elif current_rating.rating == 5 %}
 <h3> Your rating:
-<form method="post" action="#">
+    <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="2" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="3" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="4" data-id="{{ book.id }}"><i></i>
-  <input type="radio" name="rating" value="5" data-id="{{ book.id }}" checked ><i></i>
+  <input type="radio" name="rating" value="5" data-id="{{ book.id }}" checked><i></i>
 </span>
-</form>
+    </form>
 </h3>
 
 {% else %}
 <h3> Your rating:
-<form method="post" action="#">
+    <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="2" data-id="{{ book.id }}"><i></i>
@@ -103,40 +103,42 @@
   <input type="radio" name="rating" value="4" data-id="{{ book.id }}"><i></i>
   <input type="radio" name="rating" value="5" data-id="{{ book.id }}"><i></i>
 </span>
-</form>
+    </form>
 </h3>
 
 {% endif %}
 {% else %}
 
 <h3> Your rating:</h3>
-   <h5> You have to be logged in to rate books </h5>
+<h5> You have to be logged in to rate books </h5>
 {% endif %}
 <hr>
 
-    <h3 id="author">
-        <b>Authors: <br></b>
-        {% for auth in book.book_author.all %}
+<h3 id="author">
+    <b>Authors: <br></b>
+    {% for auth in book.book_author.all %}
     <div class="list-group">
-  <a href="{% url 'author' auth.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{auth.name}} {{auth.surname}}</h5>
+        <a href="{% url 'author' auth.id %}"
+           class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{auth.name}} {{auth.surname}}</h5>
+            </div>
+        </a>
+        <div class="d-flex w-100 justify-content-between"></div>
+        {% endfor %}
     </div>
-  </a>
-    <div class="d-flex w-100 justify-content-between"></div>
-    {% endfor %}
-    </div>
-        <br>
+    <br>
 
-        </h3>
-    <h3 id="category"><b>Categories:</b></h3>
-        {% for cat in book.book_category.all %}
-        <div class="list-group">
-  <a href="{% url 'books_in_category' cat.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{cat.category_name}}</h5>
-    </div>
-  </a>
+</h3>
+<h3 id="category"><b>Categories:</b></h3>
+{% for cat in book.book_category.all %}
+<div class="list-group">
+    <a href="{% url 'books_in_category' cat.id %}"
+       class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{cat.category_name}}</h5>
+        </div>
+    </a>
     <div class="d-flex w-100 justify-content-between"></div>
     {% endfor %}
 </div>
