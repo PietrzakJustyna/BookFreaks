@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -94,26 +94,35 @@ class LogoutView(View):
 
 
 class BookView(View):
+
+    @staticmethod
+    def proposed_books():
+        book = Book.objects.annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse()[:5]
+        return book
+
     def get(self, request, book_id):
         try:
             current_rating = Rating.objects.get(book_id=book_id, user_id=request.user.id)
             current_fav_state = FavouriteBook.objects.get(book_id=book_id, user_id=request.user.id)
             book = get_object_or_404(Book, pk=book_id)
             return render(request, "book_view.html", {"book": book, "current_rating": current_rating,
-                                                      "current_fav_state": current_fav_state})
+                                                      "current_fav_state": current_fav_state,
+                                                      "books": self.proposed_books()})
         except ObjectDoesNotExist:
             try:
                 current_rating = Rating.objects.get(book_id=book_id, user_id=request.user.id)
                 book = get_object_or_404(Book, pk=book_id)
-                return render(request, "book_view.html", {"book": book, "current_rating": current_rating})
+                return render(request, "book_view.html", {"book": book, "current_rating": current_rating,
+                                                          "books": self.proposed_books()})
             except ObjectDoesNotExist:
                 try:
                     current_fav_state = FavouriteBook.objects.get(book_id=book_id, user_id=request.user.id)
                     book = get_object_or_404(Book, pk=book_id)
-                    return render(request, "book_view.html", {"book": book, "current_fav_state": current_fav_state})
+                    return render(request, "book_view.html", {"book": book, "current_fav_state": current_fav_state,
+                                                              "books": self.proposed_books()})
                 except ObjectDoesNotExist:
                     book = get_object_or_404(Book, pk=book_id)
-                    return render(request, "book_view.html", {"book": book})
+                    return render(request, "book_view.html", {"book": book, "books": self.proposed_books()})
 
 
 class BookListView(View):
@@ -153,7 +162,11 @@ class BooksInCategoryView(View):
         books = Book.objects.filter(book_category=category)
         how = self.request.GET.get("how")
         books = sort(how, books)
-        return render(request, "books.html", {"books": books, "category": category})
+
+        paginator = Paginator(books, 10)
+        page = request.GET.get('page')
+        books_per_page = paginator.get_page(page)
+        return render(request, "books.html", {"books": books_per_page, "category": category})
 
 
 class SearchView(TemplateView):
@@ -169,6 +182,9 @@ class SearchResultsView(ListView):
         object_list = Book.objects.filter(Q(title__icontains=query) |
                                           Q(book_author__name__icontains=query) |
                                           Q(book_author__surname__icontains=query))
+        paginator = Paginator(object_list, 10)
+        page = self.request.GET.get('page')
+        object_list = paginator.get_page(page)
         return object_list
 
 
@@ -307,7 +323,10 @@ class RatedByUserView(LoginRequiredMixin, View):
         how = self.request.GET.get("how")
         books = Book.objects.filter(book_rating__user=user)
         books = sort(how, books)
-        return render(request, "books.html", {"books": books})
+        paginator = Paginator(books, 10)
+        page = request.GET.get('page')
+        books_per_page = paginator.get_page(page)
+        return render(request, "books.html", {"books": books_per_page})
 
 
 class LikedByUserView(LoginRequiredMixin, View):
@@ -318,6 +337,9 @@ class LikedByUserView(LoginRequiredMixin, View):
         books = Book.objects.filter(fav_book__user=user)
         how = self.request.GET.get("how")
         books = sort(how, books)
-        return render(request, "books.html", {"books": books})
+        paginator = Paginator(books, 10)
+        page = request.GET.get('page')
+        books_per_page = paginator.get_page(page)
+        return render(request, "books.html", {"books": books_per_page})
 
 

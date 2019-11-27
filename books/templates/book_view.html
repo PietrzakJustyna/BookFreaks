@@ -37,13 +37,13 @@
 
 
 <hr>
-<h3>Average rating:</h3> <h3 id="avg_rating" data-id="{{ book.id }}">{{ book.average_rating }} </h3>
+<h3><b>Average rating:</b></h3> <h3 id="avg_rating" data-id="{{ book.id }}">{{ book.average_rating }} </h3>
 
 
 <p id="current_rating" hidden data-rating="{{current_rating.rating}}"></p>
 
 {% if current_rating.rating == 1 %}
-<h3> Your rating:
+<h3> <b>Your rating:</b>
     <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}" checked><i></i>
@@ -56,7 +56,7 @@
 </h3>
 
 {% elif current_rating.rating == 2 %}
-<h3> Your rating:
+<h3> <b>Your rating:</b>
     <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
@@ -69,7 +69,7 @@
 </h3>
 
 {% elif current_rating.rating == 3 %}
-<h3> Your rating:
+<h3> <b>Your rating:</b>
     <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
@@ -82,7 +82,7 @@
 </h3>
 
 {% elif current_rating.rating == 4 %}
-<h3> Your rating:
+<h3> <b>Your rating:</b>
     <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
@@ -95,7 +95,7 @@
 </h3>
 
 {% elif current_rating.rating == 5 %}
-<h3> Your rating:
+<h3><b>Your rating:</b>
     <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
@@ -108,7 +108,7 @@
 </h3>
 
 {% else %}
-<h3> Your rating:
+<h3> <b> Your rating:</b>
     <form method="post" action="#">
 <span class="star-rating">
   <input type="radio" name="rating" value="1" data-id="{{ book.id }}"><i></i>
@@ -123,7 +123,7 @@
 {% endif %}
 {% else %}
 
-<h3> Your rating:</h3>
+<h3> <b>Your rating: </b></h3>
 <h5> You have to be logged in to rate books </h5>
 {% endif %}
 <hr>
@@ -156,6 +156,35 @@
     <div class="d-flex w-100 justify-content-between"></div>
     {% endfor %}
 </div>
+<br>
+<hr>
 
+<h3 id="otherbooks"><b>See our other popular books</b></h3>
+{% for book in books %}
+<div class="card">
+    <div class="card-body">
+
+        <h5 class="card-title">{{book.title}}</h5>
+        <h5 class="card-title">Average rating: {{book.average_rating}}</h5>
+        {% if user.is_authenticated %}
+        {% for book in book.book_rating.all %}
+        {% if book.user_id == user.id %}
+        <h5 class="card-title">Your rating: {{book.rating}}</h5>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        {% for author in book.book_author.all %}
+
+        <h6 class="card-subtitle mb-2 text-muted">{{author.name}} {{ author.surname}}</h6>
+        {% endfor %}
+        {% for category in book.book_category.all %}
+        <p class="card-text">{{category.category_name}}</p>
+        {% endfor %}
+        <a href="{% url 'book' book.id %}" class="card-link">See details</a>
+
+    </div>
+</div>
+{% endfor %}
 
 {% endblock %}

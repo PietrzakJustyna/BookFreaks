@@ -20,7 +20,7 @@
     <div class="card-body">
 
         <h5 class="card-title">{{book.title}}</h5>
-        <h5 class="card-title">Rating: {{book.average_rating}}</h5>
+        <h5 class="card-title">Average rating: {{book.average_rating}}</h5>
         {% for author in book.book_author.all %}
 
         <h6 class="card-subtitle mb-2 text-muted">{{author.name}} {{ author.surname}}</h6>

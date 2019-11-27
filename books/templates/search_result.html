@@ -16,7 +16,7 @@
         <h6 class="card-subtitle mb-2 text-muted">{{author.name}} {{ author.surname}}</h6>
         {% endfor %}
         {% for category in book.book_category.all %}
-        <p class="card-text">{{category.category_name}}</p>
+        <h6 class="card-text">{{category.category_name}}</h6>
         {% endfor %}
         <a href="{% url 'book' book.id %}" class="card-link">See details</a>
 
