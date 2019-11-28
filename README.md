@@ -12,8 +12,7 @@ Example functionalities:
   
   
   Used technologies:
-    - Python with Django framwork
-    - Javascript with a dash of jQuery
-    - Bootstrap
-    - Select2 plugin
-    
+    Python with Django framwork
+    Javascript with a dash of jQuery
+    Bootstrap
+    Select2 plugin
