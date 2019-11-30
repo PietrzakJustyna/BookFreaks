@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, ListView, CreateView, FormView, UpdateView, DeleteView
-from books.forms import LoginForm, CreateUserForm, CreateBookForm
+from books.forms import LoginForm, CreateUserForm, CreateBookForm, UpdateBookForm
 from books.models import Book, Author, Category, Rating, FavouriteBook
 
 
@@ -96,8 +96,40 @@ class LogoutView(View):
 class BookView(View):
 
     @staticmethod
-    def proposed_books():
-        book = Book.objects.annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse()[:5]
+    def proposed_books(book_id):
+
+        book_current = Book.objects.get(pk=book_id)
+        authors = book_current.book_author.all()
+        categories = book_current.book_category.all()
+
+        recommended = list(Book.objects.filter(book_author__in=authors)
+                           .distinct().exclude(id=book_id)
+                           .annotate(num_rated=Count('book_rating'))
+                           .order_by('num_rated').reverse())
+
+        # books_in_same_category = list(Book.objects.filter(book_category__in=categories).distinct().exclude(id=book_id)
+        #                               .annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse())
+
+        all_books = Book.objects.annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse()
+
+        # book = Book.objects.annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse()[:5]
+
+        if len(recommended) < 5:
+            recommended += list(Book.objects.filter(book_category__in=categories)
+                                .distinct()
+                                .exclude(id=book_id)
+                                .exclude(id__in=[r.id for r in recommended])
+                                .annotate(num_rated=Count('book_rating'))
+                                .order_by('num_rated').reverse())
+            if len(recommended) < 5:
+                recommended += list(Book.objects.all()
+                                    .distinct()
+                                    .exclude(id=book_id)
+                                    .exclude(id__in=[r.id for r in recommended])
+                                    .annotate(num_rated=Count('book_rating'))
+                                    .order_by('num_rated').reverse())
+
+        book = recommended[:5]
         return book
 
     def get(self, request, book_id):
@@ -107,22 +139,22 @@ class BookView(View):
             book = get_object_or_404(Book, pk=book_id)
             return render(request, "book_view.html", {"book": book, "current_rating": current_rating,
                                                       "current_fav_state": current_fav_state,
-                                                      "books": self.proposed_books()})
+                                                      "books": self.proposed_books(book_id)})
         except ObjectDoesNotExist:
             try:
                 current_rating = Rating.objects.get(book_id=book_id, user_id=request.user.id)
                 book = get_object_or_404(Book, pk=book_id)
                 return render(request, "book_view.html", {"book": book, "current_rating": current_rating,
-                                                          "books": self.proposed_books()})
+                                                          "books": self.proposed_books(book_id)})
             except ObjectDoesNotExist:
                 try:
                     current_fav_state = FavouriteBook.objects.get(book_id=book_id, user_id=request.user.id)
                     book = get_object_or_404(Book, pk=book_id)
                     return render(request, "book_view.html", {"book": book, "current_fav_state": current_fav_state,
-                                                              "books": self.proposed_books()})
+                                                              "books": self.proposed_books(book_id)})
                 except ObjectDoesNotExist:
                     book = get_object_or_404(Book, pk=book_id)
-                    return render(request, "book_view.html", {"book": book, "books": self.proposed_books()})
+                    return render(request, "book_view.html", {"book": book, "books": self.proposed_books(book_id)})
 
 
 class BookListView(View):
@@ -189,7 +221,7 @@ class SearchResultsView(ListView):
 
 
 class CreateBookView(PermissionRequiredMixin, FormView):
-    permission_required = 'add_book'
+    permission_required = 'books.add_book'
     template_name = 'create_book.html'
     success_url = '/books'
     form_class = CreateBookForm
@@ -220,7 +252,7 @@ class CreateBookView(PermissionRequiredMixin, FormView):
 
 
 class CreateAuthorView(PermissionRequiredMixin, CreateView):
-    permission_required = 'add_author'
+    permission_required = 'books.add_author'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to add new authors'
     model = Author
@@ -230,7 +262,7 @@ class CreateAuthorView(PermissionRequiredMixin, CreateView):
 
 
 class CreateCategoryView(PermissionRequiredMixin, CreateView):
-    permission_required = 'add_category'
+    permission_required = 'books.add_category'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to add new categories'
     model = Category
@@ -240,7 +272,7 @@ class CreateCategoryView(PermissionRequiredMixin, CreateView):
 
 
 class ModifyAuthorView(PermissionRequiredMixin, UpdateView):
-    permission_required = 'change_author'
+    permission_required = 'books.change_author'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to modify authors'
     model = Author
@@ -250,7 +282,7 @@ class ModifyAuthorView(PermissionRequiredMixin, UpdateView):
 
 
 class ModifyCategoryView(PermissionRequiredMixin, UpdateView):
-    permission_required = 'change_category'
+    permission_required = 'books.change_category'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to modify categories'
     model = Category
@@ -259,18 +291,19 @@ class ModifyCategoryView(PermissionRequiredMixin, UpdateView):
     success_url = reverse_lazy('books')
 
 
-class ModifyBookView(PermissionRequiredMixin, UpdateView):
-    permission_required = 'change_book'
+class ModifyBookView(PermissionRequiredMixin, View):
+    permission_required = 'books.change_book'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to modify books'
-    model = Book
-    template_name = 'create_book.html'
-    fields = ['title', 'isbn']
-    success_url = reverse_lazy('books')
+
+    def get(self, request, pk):
+        book = Book.objects.get(id=pk)
+        form = UpdateBookForm(instance=book)
+        return render(request, "create_book.html", {"form": form})
 
 
 class DeleteBookView(PermissionRequiredMixin, DeleteView):
-    permission_required = 'delete_book'
+    permission_required = 'books.delete_book'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to delete books'
     model = Book
@@ -279,7 +312,7 @@ class DeleteBookView(PermissionRequiredMixin, DeleteView):
 
 
 class DeleteAuthorView(PermissionRequiredMixin, DeleteView):
-    permission_required = 'delete_author'
+    permission_required = 'books.delete_author'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to delete authors'
     model = Author
@@ -288,7 +321,7 @@ class DeleteAuthorView(PermissionRequiredMixin, DeleteView):
 
 
 class DeleteCategoryView(PermissionRequiredMixin, DeleteView):
-    permission_required = 'delete_category'
+    permission_required = 'books.delete_category'
     raise_exception = True
     permission_denied_message = 'You have to be an administrator to delete categories'
     model = Category

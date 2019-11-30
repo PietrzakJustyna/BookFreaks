@@ -2,11 +2,11 @@
 
 {% block content %}
 
-{% if perms.book.change_author %}
+{% if perms.books.change_author %}
 <a class="btn btn-primary" href="{% url 'modify_author' pk=author.pk %}" role="button">Modify author</a>
 {% endif %}
 
-{% if perms.book.delete_author %}
+{% if perms.books.delete_author %}
 <a class="btn btn-primary" href="{% url 'delete_author' pk=author.pk %}" role="button">Delete author</a>
 {% endif %}
 

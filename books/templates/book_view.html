@@ -4,11 +4,11 @@
 {% load static %}
 
 
-{% if perms.book.change_book %}
+{% if perms.books.change_book %}
 <a class="btn btn-primary" href="{% url 'modify_book' pk=book.pk %}" role="button">Modify book</a>
 {% endif %}
 
-{% if perms.book.delete_book %}
+{% if perms.books.delete_book %}
 <a class="btn btn-primary" href="{% url 'delete_book' pk=book.pk %}" role="button">Delete book</a>
 {% endif %}
 

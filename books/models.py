@@ -27,7 +27,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     category_name = models.CharField(max_length=124)
-    books = models.ManyToManyField(Book, related_name="book_category")
+    # books = models.ManyToManyField(Book, related_name="book_category")
 
     def __str__(self):
         return self.category_name

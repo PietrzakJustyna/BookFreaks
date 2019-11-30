@@ -1,5 +1,5 @@
 from django import forms
-from books.models import Author, Category
+from books.models import Author, Category, Book
 
 
 class LoginForm(forms.Form):
@@ -29,3 +29,9 @@ class CreateBookForm(forms.Form):
     isbn = forms.CharField(max_length=13)
     authors = forms.ModelMultipleChoiceField(authors, required=False)
     categories = forms.ModelMultipleChoiceField(Category.objects.all())
+
+
+class UpdateBookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields ="__all__"
