@@ -4,11 +4,11 @@
 
 {% if category %}
 
-{% if perms.book.change_category %}
+{% if perms.books.change_category %}
 <a class="btn btn-primary" href="{% url 'modify_category' pk=category.pk %}" role="button">Modify category</a>
 {% endif %}
 
-{% if perms.book.delete_category %}
+{% if perms.books.delete_category %}
 <a class="btn btn-primary" href="{% url 'delete_category' pk=category.pk %}" role="button">Delete category</a>
 {% endif %}
 <br>

@@ -94,44 +94,6 @@ class LogoutView(View):
 
 
 class BookView(View):
-
-    @staticmethod
-    def proposed_books(book_id):
-
-        book_current = Book.objects.get(pk=book_id)
-        authors = book_current.book_author.all()
-        categories = book_current.book_category.all()
-
-        recommended = list(Book.objects.filter(book_author__in=authors)
-                           .distinct().exclude(id=book_id)
-                           .annotate(num_rated=Count('book_rating'))
-                           .order_by('num_rated').reverse())
-
-        # books_in_same_category = list(Book.objects.filter(book_category__in=categories).distinct().exclude(id=book_id)
-        #                               .annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse())
-
-        all_books = Book.objects.annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse()
-
-        # book = Book.objects.annotate(num_rated=Count('book_rating')).order_by('num_rated').reverse()[:5]
-
-        if len(recommended) < 5:
-            recommended += list(Book.objects.filter(book_category__in=categories)
-                                .distinct()
-                                .exclude(id=book_id)
-                                .exclude(id__in=[r.id for r in recommended])
-                                .annotate(num_rated=Count('book_rating'))
-                                .order_by('num_rated').reverse())
-            if len(recommended) < 5:
-                recommended += list(Book.objects.all()
-                                    .distinct()
-                                    .exclude(id=book_id)
-                                    .exclude(id__in=[r.id for r in recommended])
-                                    .annotate(num_rated=Count('book_rating'))
-                                    .order_by('num_rated').reverse())
-
-        book = recommended[:5]
-        return book
-
     def get(self, request, book_id):
         try:
             current_rating = Rating.objects.get(book_id=book_id, user_id=request.user.id)
@@ -139,22 +101,22 @@ class BookView(View):
             book = get_object_or_404(Book, pk=book_id)
             return render(request, "book_view.html", {"book": book, "current_rating": current_rating,
                                                       "current_fav_state": current_fav_state,
-                                                      "books": self.proposed_books(book_id)})
+                                                      "books": book.proposed_books()})
         except ObjectDoesNotExist:
             try:
                 current_rating = Rating.objects.get(book_id=book_id, user_id=request.user.id)
                 book = get_object_or_404(Book, pk=book_id)
                 return render(request, "book_view.html", {"book": book, "current_rating": current_rating,
-                                                          "books": self.proposed_books(book_id)})
+                                                          "books": book.proposed_books()})
             except ObjectDoesNotExist:
                 try:
                     current_fav_state = FavouriteBook.objects.get(book_id=book_id, user_id=request.user.id)
                     book = get_object_or_404(Book, pk=book_id)
                     return render(request, "book_view.html", {"book": book, "current_fav_state": current_fav_state,
-                                                              "books": self.proposed_books(book_id)})
+                                                              "books": book.proposed_books()})
                 except ObjectDoesNotExist:
                     book = get_object_or_404(Book, pk=book_id)
-                    return render(request, "book_view.html", {"book": book, "books": self.proposed_books(book_id)})
+                    return render(request, "book_view.html", {"book": book, "books": book.proposed_books()})
 
 
 class BookListView(View):
@@ -174,7 +136,7 @@ class BookListView(View):
 class AuthorView(View):
     def get(self, request, author_id):
         author = Author.objects.get(id=author_id)
-        books = author.books.all()
+        books = author.book_author.all()
         return render(request, "author_view.html", {"author": author, "books": books})
 
 
@@ -300,6 +262,12 @@ class ModifyBookView(PermissionRequiredMixin, View):
         book = Book.objects.get(id=pk)
         form = UpdateBookForm(instance=book)
         return render(request, "create_book.html", {"form": form})
+
+    def post(self, request, pk):
+        book = Book.objects.get(id=pk)
+        book_updated = UpdateBookForm(request.POST, instance=book)
+        book_updated.save()
+        return redirect("/books/{}".format(pk))
 
 
 class DeleteBookView(PermissionRequiredMixin, DeleteView):

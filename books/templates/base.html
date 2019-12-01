@@ -78,7 +78,7 @@
 
 
             <form method="get" action="{% url 'search_result' %}" class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"
+                <input class="form-control mr-sm-2" type="search" placeholder="Search by book title or author" aria-label="Search"
                        name="search_input">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
@@ -111,6 +111,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js"></script>
 
     <script src="{% static 'create_book_script.js' %}"></script>
+    <script src="{% static 'update_book_script.js' %}"></script>
     <script src="{% static 'rate_book_script.js' %}"></script>
     <script src="{% static 'favourite_book_script.js' %}"></script>
     <script src="{% static 'sort_dropdown.js' %}"></script>

@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+
 from books.models import Author, Category, Book
 
 
@@ -27,11 +29,17 @@ class CreateBookForm(forms.Form):
     author_surname = forms.CharField(max_length=124, required=False)
     title = forms.CharField(max_length=124)
     isbn = forms.CharField(max_length=13)
-    authors = forms.ModelMultipleChoiceField(authors, required=False)
+    authors = forms.ModelMultipleChoiceField(authors, required=False, help_text="Choose author from the list or create a new one")
     categories = forms.ModelMultipleChoiceField(Category.objects.all())
+
+    def clean(self):
+        cd = self.cleaned_data
+        author_list = Author.objects.filter(pk__in=cd.get("authors"))
+        if cd.get("create_new_author") is False and len(author_list) == 0:
+            raise ValidationError("You must add author")
 
 
 class UpdateBookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields ="__all__"
+        exclude = ["average_rating"]

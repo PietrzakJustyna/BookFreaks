@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
-
-# Create your models here.
-from django.db.models import Avg
+from django.db.models import Avg, Count
 from django.db.models.signals import post_save
 
 
@@ -11,6 +9,38 @@ class Book(models.Model):
     title = models.CharField(max_length=124)
     isbn = models.CharField(max_length=13, unique=True, null=True)
     average_rating = models.FloatField()
+    book_category = models.ManyToManyField("Category", related_name="book_category")
+    book_author = models.ManyToManyField("Author", related_name="book_author")
+
+    def proposed_books(self):
+
+        authors = self.book_author.all()
+        categories = self.book_category.all()
+
+        recommended = list(Book.objects.filter(book_author__in=authors)
+                           .distinct()
+                           .exclude(id=self.pk)
+                           .annotate(num_rated=Count('book_rating'))
+                           .order_by('num_rated')
+                           .reverse())[:5]
+
+        if len(recommended) < 5:
+            recommended += list(Book.objects.filter(book_category__in=categories)
+                                .distinct()
+                                .exclude(id=self.pk)
+                                .exclude(id__in=[r.id for r in recommended])
+                                .annotate(num_rated=Count('book_rating'))
+                                .order_by('num_rated')
+                                .reverse())[:5]
+            if len(recommended) < 5:
+                recommended += list(Book.objects.all()
+                                    .distinct()
+                                    .exclude(id=self.pk)
+                                    .exclude(id__in=[r.id for r in recommended])
+                                    .annotate(num_rated=Count('book_rating'))
+                                    .order_by('num_rated').reverse())[:5]
+
+        return recommended[:5]
 
     def __str__(self):
         return self.title
@@ -19,7 +49,6 @@ class Book(models.Model):
 class Author(models.Model):
     name = models.CharField(max_length=124)
     surname = models.CharField(max_length=124)
-    books = models.ManyToManyField(Book, related_name="book_author")
 
     def __str__(self):
         return "{} {}".format(self.name, self.surname)
@@ -27,7 +56,6 @@ class Author(models.Model):
 
 class Category(models.Model):
     category_name = models.CharField(max_length=124)
-    # books = models.ManyToManyField(Book, related_name="book_category")
 
     def __str__(self):
         return self.category_name

@@ -3,7 +3,7 @@ from books.models import Category, Book
 
 
 def book_categories_processor(request):
-    categories = Category.objects.all()
+    categories = Category.objects.all().order_by("category_name")
     return {"categories": categories}
 
 
