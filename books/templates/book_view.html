@@ -34,14 +34,16 @@
 </div>
 
 {% endif %}
+{% endif %}
 
 
 <hr>
-<h3><b>Average rating:</b></h3> <h3 id="avg_rating" data-id="{{ book.id }}">{{ book.average_rating }} </h3>
+<h3><p><b>Average rating:</b></h3> <h3 id="avg_rating" data-id="{{ book.id }}">{{ book.average_rating }}</p></h3>
 
 
 <p id="current_rating" hidden data-rating="{{current_rating.rating}}"></p>
 
+{% if user.is_authenticated %}
 {% if current_rating.rating == 1 %}
 <h3> <b>Your rating:</b>
     <form method="post" action="#">
@@ -121,11 +123,13 @@
 </h3>
 
 {% endif %}
+
 {% else %}
 
 <h3> <b>Your rating: </b></h3>
 <h5> You have to be logged in to rate books </h5>
 {% endif %}
+
 <hr>
 
 <h3 id="author">

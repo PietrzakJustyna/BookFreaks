@@ -1,9 +1,7 @@
-from random import randint
-
 from django.contrib.auth.models import User, Permission, Group
 from django.test import TestCase
 from faker import Faker
-from django.test import Client
+
 from books.models import Author, Book, Category, Rating, FavouriteBook
 
 
@@ -41,7 +39,7 @@ class BookTestCase(TestCase):
         book_data = self._fake_book_data()
         new_book = Book.objects.create(**book_data)
 
-    def test_add_book(self):
+    def test_add_book_user_has_permissions(self):
         books_before = Book.objects.count()
 
         user = User.objects.first()
@@ -58,6 +56,21 @@ class BookTestCase(TestCase):
 
         self.assertEqual(Book.objects.count(), books_before + 1)
 
+    def test_add_book_no_permission(self):
+        books_before = Book.objects.count()
+
+        user = User.objects.first()
+        self.client.login(username=user.username, password="12345678")
+
+        response = self.client.post("/create_book", {"title": self.faker.word(),
+                                                     "isbn": self.faker.random_int(min=1000, max=9999, step=1),
+                                                     "create_new_author": False,
+                                                     "authors": Author.objects.first().pk,
+                                                     "categories": Category.objects.first().pk,
+                                                     "average_rating": 0.0})
+
+        self.assertEqual(Book.objects.count(), books_before)
+
     def test_delete_book(self):
         books_before = Book.objects.count()
         book = Book.objects.first()
@@ -66,7 +79,7 @@ class BookTestCase(TestCase):
         user.user_permissions.add(permission_needed)
         self.client.login(username=user.username, password="12345678")
         response = self.client.post("/delete_book/{}".format(book.pk))
-        self.assertEqual(Book.objects.count(), books_before-1)
+        self.assertEqual(Book.objects.count(), books_before - 1)
 
     def test_add_author(self):
         authors_before = Author.objects.count()
@@ -92,7 +105,7 @@ class BookTestCase(TestCase):
         user.user_permissions.add(permission_needed)
         self.client.login(username=user.username, password="12345678")
         response = self.client.post("/delete_author/{}".format(author.pk))
-        self.assertEqual(Author.objects.count(), authors_before-1)
+        self.assertEqual(Author.objects.count(), authors_before - 1)
 
     def test_add_category(self):
         categories_before = Category.objects.count()
@@ -103,7 +116,7 @@ class BookTestCase(TestCase):
         self.client.login(username=user.username, password="12345678")
 
         response = self.client.post("/create_category", {"category_name": self.faker.word()})
-        self.assertEqual(Category.objects.count(), categories_before+1)
+        self.assertEqual(Category.objects.count(), categories_before + 1)
 
     def test_delete_category(self):
         categories_before = Category.objects.count()
@@ -125,7 +138,7 @@ class BookTestCase(TestCase):
                                                   "first_name": self.faker.first_name(),
                                                   "last_name": self.faker.last_name(),
                                                   "email": self.faker.email()})
-        self.assertEqual(User.objects.count(), users_before+1)
+        self.assertEqual(User.objects.count(), users_before + 1)
 
     def test_login_user(self):
         user = User.objects.first()
@@ -143,9 +156,25 @@ class BookTestCase(TestCase):
 
     def test_favourite(self):
         book = Book.objects.last()
-        user = User.objects.last()
-        new_fav = FavouriteBook.objects.create(book_id=book.pk, user_id=user.pk, favourite=True)
-        new_fav.save()
+
+        user = User.objects.first()
+        permission_needed = Permission.objects.get(name="Can add favourite book")
+        user.user_permissions.add(permission_needed)
+        self.client.login(username=user.username, password="12345678")
+
+        response = self.client.post("/book_fav/{}/{}".format(book.pk, 1))
 
         books = Book.objects.filter(fav_book__user=user)
         self.assertEqual(len(books), 1)
+
+    def test_modify_category(self):
+        category = Category.objects.last()
+
+        user = User.objects.first()
+        permission_needed = Permission.objects.get(name="Can change category")
+        user.user_permissions.add(permission_needed)
+        self.client.login(username=user.username, password="12345678")
+
+        response = self.client.post("/modify_category/{}".format(category.pk), {"category_name": "nowa nazwa"})
+        category.refresh_from_db()
+        self.assertEqual(category.category_name, "nowa nazwa")

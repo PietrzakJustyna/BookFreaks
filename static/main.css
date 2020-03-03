@@ -88,11 +88,19 @@
 }
 
 #title {
+    margin: 10px;
+    display: inline;
+}
+
+#heart {
     float: left;
     margin: 10px;
 }
 
-#heart {
-    float: none;
-    margin: 10px;
+hr{
+    clear: both;
+}
+
+h3{
+    clear: both;
 }
