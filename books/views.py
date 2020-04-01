@@ -13,7 +13,7 @@ from django.views import View
 from django.views.generic import TemplateView, ListView, CreateView, FormView, UpdateView, DeleteView
 from books.forms import LoginForm, CreateUserForm, CreateBookForm, UpdateBookForm
 from books.models import Book, Author, Category, Rating, FavouriteBook
-
+from books.resources import BookResource
 
 def sort(how, what):
 
@@ -343,4 +343,12 @@ class LikedByUserView(LoginRequiredMixin, View):
         books_per_page = paginator.get_page(page)
         return render(request, "books.html", {"books": books_per_page})
 
+
+def export_books(request):
+    book_resource = BookResource()
+    data_to_export = book_resource.export()
+    response = HttpResponse(data_to_export.xls, content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="books.xls"'
+    print(response)
+    return response
 

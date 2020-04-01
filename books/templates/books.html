@@ -32,6 +32,8 @@
     {% csrf_token %}
 </form>
 
+<a href="{% url 'export_books' %}">Export books</a>
+
 <br>
 
 {% for book in books %}

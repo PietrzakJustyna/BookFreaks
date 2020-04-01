@@ -19,7 +19,7 @@ from django.urls import path
 from books.views import BookView, LoginView, CreateUserView, BookListView, AuthorListView, AuthorView, \
     LandingPageView, SearchResultsView, LogoutView, CreateBookView, BooksInCategoryView, CreateAuthorView, \
     CreateCategoryView, ModifyAuthorView, ModifyCategoryView, DeleteBookView, DeleteAuthorView, RateBookView, \
-    ModifyBookView, DeleteCategoryView, FavouriteBookView, RatedByUserView, LikedByUserView
+    ModifyBookView, DeleteCategoryView, FavouriteBookView, RatedByUserView, LikedByUserView, export_books
 
 urlpatterns = [
     path('', LandingPageView.as_view(), name='landing_page'),
@@ -46,4 +46,5 @@ urlpatterns = [
     path('book_fav/<int:book_id>/<int:fav>', FavouriteBookView.as_view(), name='fav_book'),
     path('books/rated_by_you', RatedByUserView.as_view(), name='rated_by_user'),
     path('books/liked_by_you', LikedByUserView.as_view(), name='liked_by_user'),
+    path('books/export', export_books, name='export_books'),
 ]
