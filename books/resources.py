@@ -5,8 +5,12 @@ from import_export.widgets import ManyToManyWidget
 
 
 class BookResource(resources.ModelResource):
-    book_category = Field(attribute='book_category', widget=ManyToManyWidget(Category, field='category_name'))
-    book_author = Field(attribute='book_author', widget=ManyToManyWidget(Author))
+    book_category = Field(attribute='book_category', widget=ManyToManyWidget(Category, field='category_name'),
+                          column_name='Category')
+    book_author = Field(attribute='book_author', widget=ManyToManyWidget(Author), column_name='Author')
+    isbn = Field(attribute='isbn', column_name='ISBN')
+    title = Field(attribute='title', column_name='Title')
+    average_rating = Field(attribute='average_rating', column_name='Average rating')
 
     class Meta:
         model = Book
