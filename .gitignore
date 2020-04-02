@@ -5,4 +5,5 @@ tags
 .idea/*
 *.iml
 venv
+.env
 BookFreaksProject/secrets.py

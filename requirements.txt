@@ -11,3 +11,4 @@ six==1.13.0
 sqlparse==0.3.0
 swapper==1.1.1
 django-import-export
+python-decouple
