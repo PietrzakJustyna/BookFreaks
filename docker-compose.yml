@@ -11,17 +11,18 @@ services:
     env_file:
       - ./.env
     depends_on:
-          - db
+      - db
+    links:
+      - db:db
   db:
-    image: postgres:12.0-alpine
+    image: postgres:latest
     ports:
       - 5432:5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ./db_init/books.sql:/docker-entrypoint-initdb.d/books.sql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=coderslab
       - POSTGRES_DB=BookFreaks
 
-volumes:
-  postgres_data:
+

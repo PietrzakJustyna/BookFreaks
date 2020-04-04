@@ -87,6 +87,7 @@ WSGI_APPLICATION = 'BookFreaksProject.wsgi.application'
 DATABASES = {
     'default': {
         'HOST': config("SQL_HOST"),
+        # 'HOST': 'localhost',
         'NAME': config("SQL_DATABASE"),
         'ENGINE': config("SQL_ENGINE"),
         'USER': config("SQL_USER"),

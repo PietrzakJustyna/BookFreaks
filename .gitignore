@@ -6,4 +6,4 @@ tags
 *.iml
 venv
 .env
-BookFreaksProject/secrets.py
+db_init/
